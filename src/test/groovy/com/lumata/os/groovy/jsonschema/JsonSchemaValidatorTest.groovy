@@ -28,8 +28,8 @@ class JsonSchemaValidatorTest {
 		use(JsonSchemaValidator){
 			valid.setSchema(jsonSchema)
 			invalid.setSchema(jsonSchema)
-			assert valid.validate() : "Json is not valid"
-			assert !invalid.validate() : "Json is  valid"
+			assert valid.conformsSchema() : "Json is not valid"
+			assert !invalid.conformsSchema() : "Json is  valid"
 		}
 	}
 
@@ -44,7 +44,7 @@ class JsonSchemaValidatorTest {
 
 		use(JsonSchemaValidator){
 			jsonDoc.setSchema(jsonSchema)
-			assert jsonDoc.validate() : "Json is not valid"
+			assert jsonDoc.conformsSchema() : "Json is not valid"
 		}
 	}
 
@@ -61,8 +61,8 @@ class JsonSchemaValidatorTest {
 		use(JsonSchemaValidator){
 			valid.setSchema(jsonSchema)
 			invalid.setSchema(jsonSchema)
-			assert valid.validate() : "Json is not valid"
-			assert !invalid.validate() : "Json is valid"
+			assert valid.conformsSchema() : "Json is not valid"
+			assert !invalid.conformsSchema() : "Json is valid"
 		}
 	}
 
@@ -78,8 +78,26 @@ class JsonSchemaValidatorTest {
 		use(JsonSchemaValidator){
 			valid.setSchema(jsonSchema)
 			invalid.setSchema(jsonSchema)
-			assert valid.validate() : "Json is not valid"
-			assert !invalid.validate() : "Json is valid"
+			assert valid.conformsSchema() : "Json is not valid"
+			assert !invalid.conformsSchema() : "Json is valid"
+		}
+	}
+
+	@Test
+	void testRef(){
+		def json = new JsonSlurper().parseText('{"b":{ "a" : 1 }}')
+		use(JsonSchemaValidator){
+			json.schema  = 'classpath:///testSchemaWithRef.json'.resolve()
+			assert json.conformsSchema()
+		}
+	}
+	
+	@Test
+	void testNullSchema(){
+		def json = new JsonSlurper().parseText('{"b":{ "a" : 1 }}')
+		use(JsonSchemaValidator){
+			json.schema  = null
+			assert json.conformsSchema()
 		}
 	}
 

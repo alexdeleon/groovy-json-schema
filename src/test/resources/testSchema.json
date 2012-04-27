@@ -1,0 +1,8 @@
+{
+	"properties": {
+		"a": {
+			"type": "number",
+			"required": true
+		}
+	}
+}

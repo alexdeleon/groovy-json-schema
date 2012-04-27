@@ -9,12 +9,25 @@ package com.lumata.os.groovy.jsonschema
  */
 class JsonSchemaValidator {
 
-	static boolean validate(Object obj){
+	static boolean conformsSchema(Object obj){
 		def schema =  obj.getJsonSchema()
+		if(!schema){
+			return true
+		}
+
+		if(schema.$ref){
+			setSchema(obj, JsonSchemaResolver.resolveSchema(schema.$ref, schema.parent))
+			return conformsSchema(obj)
+		}
+
+		if(schema.required && isNull(obj)){
+			return false
+		}
+
 		def type = schema.type
 
 		if(type == 'array'){
-			return validateArray(obj)
+			return validateArray(obj, schema)
 		}
 		if(type == 'string'){
 			return isString(obj);
@@ -34,23 +47,27 @@ class JsonSchemaValidator {
 		if(valid){
 			schema.properties.each{ name, property ->
 				def value =  obj."$name"
-				if(property.required){
-					return !isNull(value)
+				if(property){
+					property.parent = obj.getJsonSchema()
 				}
 				setSchema(value, property)
-				valid &= validate(value)
+				valid &= conformsSchema(value)
 			}
 		}
 		return valid
 	}
 
-	static boolean validateArray(Object value){
+	static boolean validateArray(Object value, schema){
 		boolean valid = true;
 		valid &= isArray(value);
 		if(valid && value != null){
 			for(def item : value){
-				setSchema(item, value.getJsonSchema().items)
-				valid &= validate(item)
+				def items = schema.items
+				if(items){
+					items.parent = schema
+				}
+				setSchema(item, items)
+				valid &= conformsSchema(item)
 			}
 		}
 		return valid;
@@ -86,5 +103,9 @@ class JsonSchemaValidator {
 
 	static boolean isNull(value){
 		return value == null
+	}
+
+	static Object resolve(String id){
+		return JsonSchemaResolver.resolveSchema(id);
 	}
 }

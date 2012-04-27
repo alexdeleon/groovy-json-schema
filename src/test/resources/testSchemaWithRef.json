@@ -1,0 +1,7 @@
+{
+	"properties": {
+		"b": {
+			"$ref" : "testSchema.json"
+		}
+	}
+}
