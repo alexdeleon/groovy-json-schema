@@ -9,72 +9,74 @@ package com.lumata.os.groovy.jsonschema
  */
 class JsonSchema {
 
-	static boolean conformsSchema(Object obj){
-		def schema =  obj.getSchema()
+	static boolean conformsSchema(Object instance, Object schema){
+		schema = schema ?: instance.getSchema()
+
 		if(!schema){
 			return true
 		}
 
-		if(schema.$ref){
-			setSchema(obj, JsonSchemaResolver.resolveSchema(schema.$ref, schema.parent))
-			return conformsSchema(obj)
+		if(schema instanceof String){
+			schema = resolve(schema)
 		}
 
-		if(schema.required && isNull(obj)){
-			return false
+		if(schema.$ref){
+			return conformsSchema(instance, JsonSchemaResolver.resolveSchema(schema.$ref, schema.getParent()))
+		}
+
+		if(isNull(instance)){
+			return !schema.required
 		}
 
 		def type = schema.type
 
 		if(type == 'array'){
-			return validateArray(obj, schema)
+			return validateArray(instance, schema)
 		}
 		if(type == 'string'){
-			return isString(obj);
+			return isString(instance);
 		}
 		if(type == 'number'){
-			return isNumber(obj);
+			return isNumber(instance);
 		}
 		if(type == 'integer'){
-			return isInteger(obj);
+			return isInteger(instance);
 		}
 		if(type == 'boolean'){
-			return isBoolean(obj);
+			return isBoolean(instance);
 		}
 
 		//must be an object then
-		boolean valid = isObject(obj)
+		boolean valid = isObject(instance)
 		if(valid){
 			schema.properties.each{ name, property ->
-				def value =  obj."$name"
+				def value =  instance."$name"
 				if(property){
-					property.parent = obj.getSchema()
+					property.getMetaClass().getParent = { -> instance.getSchema() }
 				}
-				setSchema(value, property)
-				valid &= conformsSchema(value)
+				valid &= conformsSchema(value, property)
 			}
 		}
 		return valid
 	}
 
-	static boolean validateArray(Object value, schema){
+	static boolean validateArray(Object value, Object schema){
 		boolean valid = true;
 		valid &= isArray(value);
 		if(valid && value != null){
 			for(def item : value){
 				def items = schema.items
 				if(items){
-					items.parent = schema
+					items.getParent = { -> schema }
 				}
-				setSchema(item, items)
-				valid &= conformsSchema(item)
+				valid &= conformsSchema(item, items)
 			}
 		}
 		return valid;
 	}
 
-	static void setSchema(Object obj, Object schema){
-		obj.getMetaClass().getSchema = { -> schema }
+	static void setSchema(Object obj, Object jsonSchema){
+		obj.getMetaClass().getSchema = { -> jsonSchema }
 	}
 
 	static boolean isString(value){

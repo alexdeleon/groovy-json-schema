@@ -91,12 +91,27 @@ class JsonSchemaTest {
 			assert json.conformsSchema()
 		}
 	}
-	
+
 	@Test
 	void testNullSchema(){
 		def json = new JsonSlurper().parseText('{"b":{ "a" : 1 }}')
 		use(JsonSchema){
 			json.schema  = null
+			assert json.conformsSchema()
+		}
+	}
+
+	@Test
+	void testReadmeExample1(){
+		def json = new JsonSlurper().parseText("""\
+			{
+				"givenName" : "Alexander",
+				"familyName" : "De Leon"
+			}
+		""")
+
+		use(JsonSchema){
+			json.schema  = 'http://json-schema.org/card'.resolve()
 			assert json.conformsSchema()
 		}
 	}
