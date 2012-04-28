@@ -3,7 +3,6 @@
  */
 package com.lumata.os.groovy.jsonschema
 
-
 /**
  * @author Alexander De Leon - alexander.leon@lumatagroup.com
  *
@@ -11,10 +10,7 @@ package com.lumata.os.groovy.jsonschema
 class JsonSchemaValidator {
 
 	static boolean conformsSchema(Object obj){
-
-		def schema =  obj.getSchema()
-
-		//A null schema is always valid
+		def schema =  obj.getJsonSchema()
 		if(!schema){
 			return true
 		}
@@ -52,7 +48,7 @@ class JsonSchemaValidator {
 			schema.properties.each{ name, property ->
 				def value =  obj."$name"
 				if(property){
-					property.parent = schema
+					property.parent = obj.getJsonSchema()
 				}
 				setSchema(value, property)
 				valid &= conformsSchema(value)
@@ -78,7 +74,7 @@ class JsonSchemaValidator {
 	}
 
 	static void setSchema(Object obj, Object schema){
-		obj.getMetaClass().getSchema = { -> schema }
+		obj.getMetaClass().getJsonSchema = { -> schema }
 	}
 
 	static boolean isString(value){

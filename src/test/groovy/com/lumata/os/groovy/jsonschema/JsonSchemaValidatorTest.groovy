@@ -91,7 +91,7 @@ class JsonSchemaValidatorTest {
 			assert json.conformsSchema()
 		}
 	}
-
+	
 	@Test
 	void testNullSchema(){
 		def json = new JsonSlurper().parseText('{"b":{ "a" : 1 }}')
