@@ -14,7 +14,7 @@ import org.junit.Test
  * @author Alexander De Leon - alexander.leon@lumatagroup.com
  *
  */
-class JsonSchemaValidatorTest {
+class JsonSchemaTest {
 
 	@Test
 	void testJson(){
@@ -25,7 +25,7 @@ class JsonSchemaValidatorTest {
 		//create json schema
 		def jsonSchema = new JsonSlurper().parseText('{"properties":{"a":{"type":"number"}}}')
 
-		use(JsonSchemaValidator){
+		use(JsonSchema){
 			valid.setSchema(jsonSchema)
 			invalid.setSchema(jsonSchema)
 			assert valid.conformsSchema() : "Json is not valid"
@@ -42,7 +42,7 @@ class JsonSchemaValidatorTest {
 		//create json schema
 		def jsonSchema = new JsonSlurper().parseText('{"properties":{"a":{"type":"number"}}}')
 
-		use(JsonSchemaValidator){
+		use(JsonSchema){
 			jsonDoc.setSchema(jsonSchema)
 			assert jsonDoc.conformsSchema() : "Json is not valid"
 		}
@@ -58,7 +58,7 @@ class JsonSchemaValidatorTest {
 		//create json schema
 		def jsonSchema = new JsonSlurper().parseText('{"properties":{"a":{"type":"object", "properties":{"b":{"type":"number"}}}}}')
 
-		use(JsonSchemaValidator){
+		use(JsonSchema){
 			valid.setSchema(jsonSchema)
 			invalid.setSchema(jsonSchema)
 			assert valid.conformsSchema() : "Json is not valid"
@@ -75,7 +75,7 @@ class JsonSchemaValidatorTest {
 		//create json schema
 		def jsonSchema = new JsonSlurper().parseText('{"properties":{"a":{"type":"array", "items":{"type":"number"}}}}')
 
-		use(JsonSchemaValidator){
+		use(JsonSchema){
 			valid.setSchema(jsonSchema)
 			invalid.setSchema(jsonSchema)
 			assert valid.conformsSchema() : "Json is not valid"
@@ -86,7 +86,7 @@ class JsonSchemaValidatorTest {
 	@Test
 	void testRef(){
 		def json = new JsonSlurper().parseText('{"b":{ "a" : 1 }}')
-		use(JsonSchemaValidator){
+		use(JsonSchema){
 			json.schema  = 'classpath:///testSchemaWithRef.json'.resolve()
 			assert json.conformsSchema()
 		}
@@ -95,7 +95,7 @@ class JsonSchemaValidatorTest {
 	@Test
 	void testNullSchema(){
 		def json = new JsonSlurper().parseText('{"b":{ "a" : 1 }}')
-		use(JsonSchemaValidator){
+		use(JsonSchema){
 			json.schema  = null
 			assert json.conformsSchema()
 		}
