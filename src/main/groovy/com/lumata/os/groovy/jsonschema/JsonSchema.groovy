@@ -46,34 +46,26 @@ class JsonSchema {
 			return isBoolean(instance);
 		}
 
-		//must be an object then
-		boolean valid = isObject(instance)
-		if(valid){
-			schema.properties.each{ name, property ->
-				def value =  instance."$name"
-				if(property){
-					property.getMetaClass().getParent = { -> instance.getSchema() }
-				}
-				valid &= conformsSchema(value, property)
+		if(type == 'object' || schema.properties != null){
+			return isObject(instance) &&
+			schema.properties.every { name, property ->
+				def value = instance."$name"
+				setParentIfNotNull(property, schema)
+				return conformsSchema(value, property)
 			}
 		}
-		return valid
+
+		return true
 	}
 
 	static boolean validateArray(Object value, Object schema){
-		boolean valid = true;
-		valid &= isArray(value);
-		if(valid && value != null){
-			for(def item : value){
-				def items = schema.items
-				if(items){
-					items.getParent = { -> schema }
-				}
-				valid &= conformsSchema(item, items)
-			}
+		return isArray(value) && value.every { item ->
+			def items = schema.items
+			setParentIfNotNull(items, schema)
+			return conformsSchema(item, items)
 		}
-		return valid;
 	}
+
 
 	static void setSchema(Object obj, Object jsonSchema){
 		obj.getMetaClass().getSchema = { -> jsonSchema }
@@ -109,5 +101,11 @@ class JsonSchema {
 
 	static Object resolve(String id){
 		return JsonSchemaResolver.resolveSchema(id);
+	}
+
+	private static setParentIfNotNull(schema, parent){
+		if(schema){
+			schema.getMetaClass().getParent  = { -> parent }
+		}
 	}
 }
