@@ -13,6 +13,12 @@
 
 	<description>Groovy Json Schema validator</description>
 
+	<scm>
+		<connection>scm:git:git@github.com:alexdeleon/groovy-json-schema.git</connection>
+		<developerConnection>scm:git:git@github.com:alexdeleon/groovy-json-schema.git</developerConnection>
+  	</scm>
+
+
 	<properties>
 		<groovy.runtime.version>1.8.6</groovy.runtime.version>
 	</properties>
