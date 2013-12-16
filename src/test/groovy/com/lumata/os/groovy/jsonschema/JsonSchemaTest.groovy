@@ -1,11 +1,12 @@
 /*
  * 2012 copyright Buongiorno SpA
  */
-package com.lumata.os.groovy.jsonschema;
+package com.lumata.os.groovy.jsonschema
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.*
 import groovy.json.JsonSlurper
 
+import org.junit.Ignore
 import org.junit.Test
 
 
@@ -101,6 +102,7 @@ class JsonSchemaTest {
 		}
 	}
 
+	@Ignore("The http://json-schema.org/card schema has a syntaxt error. Disabling the test until it is fixed.")
 	@Test
 	void testReadmeExample1(){
 		def json = new JsonSlurper().parseText("""\
@@ -118,7 +120,7 @@ class JsonSchemaTest {
 
 
 	class TestObj{
-		int a;
+		int a
 	}
 
 
